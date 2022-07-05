@@ -5,6 +5,9 @@ const app = express();
 const DB_URL = "mongodb+srv://test:test@test.snfb0.mongodb.net/?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
 const path = require("path");
+const fs = require("fs");
+const logger = require("./logger")
+const format = require("node.date-time")
 const Schema = mongoose.Schema;
 const fileSchema = new Schema({
     name: {type: String, required:true},
@@ -21,8 +24,7 @@ app.post('/upload/:id', packingFile, (req, res) => {
         const type = req.header('content-type');
         const size = req.header('content-length');
         const File = mongoose.model("File", fileSchema);
-        const fileInDb = fileDetails.findOne({name: new RegExp('^'+name+'$', "i")}, function(err, doc) {
-            console.log(doc);
+        fileDetails.findOne({name: new RegExp('^'+name+'$', "i")}, function(err, doc) {
             if (doc != null){
                 fileDetails.findOneAndUpdate(
                     {name: name}, // критерий выборки
@@ -31,7 +33,18 @@ app.post('/upload/:id', packingFile, (req, res) => {
                         console.log(result);
                     }
                 );
-            }else File.create({name: name, type: type, size: size}).then();
+            }else if (doc == null) {
+                logger.info("Начало сохранения файла " + new Date().format("y-M-d H:M:S"))
+                File.create({name: name, type: type, size: size}).then(r => {
+                logger.info("Окончание сохранения файла " + new Date().format("y-M-d H:M:S"))
+                const stats = fs.statSync(path.join(__dirname, 'data'))
+                const fileSizeInBytes = stats.size;
+                const fileSizeInMegabytes = fileSizeInBytes / (1024*1024);
+                if (fileSizeInMegabytes > 10){
+                    logger.info("Общий размер файлов в папке превысил определенный лимит")
+                }else logger.info("Общий размер файлов в папке не превысил определенный лимит")
+                });
+            }
         });
     }
     res.send('ok');
