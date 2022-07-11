@@ -37,5 +37,15 @@ class FileService{
         const writeStream = fs.createWriteStream(path.join(__dirname, '../data', file.name));
         writeStream.write(newFileData.buffer);
     }
+
+    async getFile(res, fileId) {
+        const file = await files.findById(fileId);
+        const readStream = fs.createReadStream(path.join(__dirname, '../data', file.name));
+        res.header({
+            'Content-Type': file.type,
+            'Content-Length': file.size
+        });
+        readStream.pipe(res);
+    }
 }
 module.exports = new FileService();

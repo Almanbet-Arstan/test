@@ -10,9 +10,9 @@ class FileController {
         res.send('ok');
     }
 
-    async getById(req, res) {
-        const file = await files.findById(req.params.id)
-        res.send(file)
+    async getFile(req, res) {
+        await FileService.getFile(res, req.params.id);
+        console.log(res);
     }
 
     async download(req, res){
