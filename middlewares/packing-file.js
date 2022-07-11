@@ -4,7 +4,11 @@ module.exports = (req, res, next) =>  {
         buffer = Buffer.concat([buffer, chunk]);
     });
     req.on('end', () => {
-        req.file = buffer;
+        req.file = {
+            buffer: buffer,
+            type: req.headers["content-type"],
+            size: req.headers["content-length"]
+        }
         next();
     })
 }

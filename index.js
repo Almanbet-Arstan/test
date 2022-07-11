@@ -4,7 +4,7 @@ const app = express();
 const PORT = process.env.PORT;
 const DB_URL = process.env.DB_URL;
 const mongoose = require("mongoose");
-const router  = require("./Router/Router");
+const router  = require("./router/Router");
 app.use(express.json())
 app.use('/api', router)
 
