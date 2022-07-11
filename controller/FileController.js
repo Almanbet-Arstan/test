@@ -10,6 +10,11 @@ class FileController {
         res.send('ok');
     }
 
+    async getById(req, res) {
+        const file = await files.findById(req.params.id)
+        res.send(file)
+    }
+
     async download(req, res){
         const fileInDb = await files.findById(req.params.id)
         const file = path.join(__dirname, '../data', fileInDb.name)
